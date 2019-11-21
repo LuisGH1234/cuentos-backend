@@ -14,6 +14,7 @@ app.get("/apidoc", (req, res) => {
     res.end();
 });
 app.use("/api/users", require("./modules/user/user.router"));
+app.use("/api/stories", require("./modules/story/story.router"));
 app.use("/api/genders", require("./modules/gender/gender.router"));
 
 app.use((e, req, res, next) => {

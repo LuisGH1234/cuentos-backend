@@ -1,12 +1,30 @@
 const { query, SQL } = require("../config/mysql");
 
 class StoryDao {
-    static async getAllByUser(userID) {
-        return [];
+    static async getAll(filter = '') {
+        const [result] = await query(SQL`
+        select * from story s 
+            left join user u on s.userId = i.id 
+            left join story_gender sg on s.id = sg.story_id
+            left join gender g on sg.gender_id = g.id
+        where s.name like '%${filter}%' or 
+            g.name like '%${filter}%' or 
+            u.name like '%${filter}%'
+        `);
+        return result;
     }
 
-    static getAll() {
-        return [];
+    static async getAllMine(userID, filter = '') {
+        const [result] = await query(SQL`
+        select * from story s 
+            left join user u on s.userId = i.id 
+            left join story_gender sg on s.id = sg.story_id
+            left join gender g on sg.gender_id = g.id
+        where (s.name like '%${filter}%' or 
+            g.name like '%${filter}%' or 
+            u.name like '%${filter}%') and s.userId = ${userID}
+        `);
+        return result;
     }
 }
 
