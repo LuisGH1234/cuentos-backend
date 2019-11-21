@@ -4,7 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "start": "node src/index.js"
+        "start": "node src/index.js",
+        "db:seed": "node src/config/seed/index.js"
     },
     "repository": {
         "type": "git",
@@ -19,7 +20,7 @@
     "homepage": "https://github.com/LuisGH1234/cuentos-backend#readme",
     "dependencies": {
         "aws-sdk": "^2.574.0",
-        "bcrypt": "^3.0.7",
+        "bcrypt": "^3.0.6",
         "cors": "^2.8.5",
         "express": "^4.17.1",
         "jsonwebtoken": "^8.5.1",

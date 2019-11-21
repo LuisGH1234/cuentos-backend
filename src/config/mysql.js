@@ -1,11 +1,11 @@
 const mysql = require("mysql2");
 const Config = require("./config");
 const AWS_RDS = require("./rds-auth");
-const fs = require("fs");
-const { join } = require("path");
+// const fs = require("fs");
+// const { join } = require("path");
 
 // Create the connection pool. The pool-specific settings are the defaults
-const createConnection = () => {
+const createConnection = (multipleStatements = false) => {
     const token = AWS_RDS({
         region: Config.region,
         hostname: Config.dbEndpoint,
@@ -15,14 +15,12 @@ const createConnection = () => {
     // console.log("Token:", token);
     return mysql.createConnection({
         host: Config.dbEndpoint,
-        user: Config.dbUsername, // "admin",
-        password: token, // "0B-e-a8969",
-        database: Config.dbName, // "control3db",
+        user: Config.dbUsername,
+        password: token,
+        database: Config.dbName,
         port: Config.dbPort,
+        multipleStatements,
         ssl: "Amazon RDS",
-        // ssl: {
-        //     ca: fs.readFileSync(join(__dirname + "../../../certs/rds-ca-2015-root.pem")),
-        // },
         authSwitchHandler: (data, cb) => {
             // modifies the authentication handler
             if (data.pluginName === "mysql_clear_password") {
@@ -34,11 +32,12 @@ const createConnection = () => {
     });
 };
 
-async function testConnection() {
+async function testConnection(showResult = false) {
     try {
         // const result = await pool.promise().query("select 1 + 1");
         const result = await query(SQL`select 1 + 1`);
-        console.log("The reult is (mysql):", result);
+        console.log("DB is connected");
+        if (showResult) console.log("The reult is (mysql):", result);
     } catch (error) {
         console.error("Error trying to connect:", error);
     }
@@ -55,9 +54,10 @@ async function query({ sql, args }) {
         return res;
         // return await pool.promise().query(sql, args);
     } catch (error) {
-        console.log("Query error:", error);
+        // console.log("Query error:", error);
         if (conn && typeof conn === "object") conn.end();
-        return [null, null, error];
+        throw new Error(error);
+        // return [null, null, error];
     }
 }
 
@@ -73,5 +73,6 @@ testConnection();
 
 module.exports = {
     query,
-    SQL
+    SQL,
+    createConnection
 };
