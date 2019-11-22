@@ -17,7 +17,7 @@ class StoryDao {
             conn.connect();
             const pc = conn.promise();
             const [stories] = await pc.query(sql, args);
-            console.log(stories);
+
             for (const story of stories) {
                 const { sql, args } = SQL`select * from user where id = ${story.userId}`;
                 const [res] = await pc.query(sql, args);
@@ -29,7 +29,7 @@ class StoryDao {
                     args: args2
                 } = SQL`select * from story_gender where story_id = ${story.id}`;
                 const [res2] = await pc.query(sql2, args2);
-                // console.log("23", res2);
+
                 story.genders = [];
                 for (const sg of res2) {
                     let {
@@ -67,7 +67,7 @@ class StoryDao {
             conn.connect();
             const pc = conn.promise();
             const [stories] = await pc.query(sql, args);
-            console.log(stories);
+
             for (const story of stories) {
                 const { sql, args } = SQL`select * from user where id = ${story.userId}`;
                 const [res] = await pc.query(sql, args);
@@ -79,8 +79,8 @@ class StoryDao {
                     args: args2
                 } = SQL`select * from story_gender where story_id = ${story.id}`;
                 const [res2] = await pc.query(sql2, args2);
-                // console.log("23", res2);
                 story.genders = [];
+
                 for (const sg of res2) {
                     let {
                         sql: sql3,
@@ -104,9 +104,32 @@ class StoryDao {
      * @returns - { insertId: number }
      * */
     static async insert(obj) {
+        const genders = obj.genders;
         const story = Story.from(obj).forInsert();
-        const [result] = await query(SQL`insert into story set ${story}`);
-        return result;
+        let conn = null;
+        try {
+            const { sql, args } = SQL`insert into story set ${story}`;
+
+            conn = createConnection();
+            conn.connect();
+            const pc = conn.promise();
+            pc.beginTransaction();
+            const [result] = await pc.query(sql, args);
+            for (const g of genders || []) {
+                const sql2 = "insert into story_gender set story_id=?, gender_id=?";
+                await pc.query(sql2, [result.insertId, g.id]);
+            }
+            pc.commit();
+            conn.end();
+            return result;
+        } catch (error) {
+            if (conn && typeof conn === "object") {
+                conn.promise().rollback();
+                conn.end();
+            }
+            console.log(error);
+            throw new Error(error);
+        }
     }
 
     static async update(obj) {
@@ -124,13 +147,16 @@ class Story {
         this.name = obj.name;
         this.text = obj.text;
         this.imageUrl = obj.imageUrl;
-        this.gender = obj.gender; // []Gender
+        this.genders = obj.genders; // []Gender
         this.user = obj.user; // {}User
+        this.userId = (obj.user || {}).id;
     }
 
     forInsert() {
         delete this.createdAt;
         delete this.id;
+        delete this.user;
+        delete this.genders;
         return this;
     }
 

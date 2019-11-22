@@ -27,3 +27,16 @@ exports.getAllMine = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.createStory = async (req, res, next) => {
+    try {
+        req.body.user = req.user;
+        const result = await StoryDao.insert(req.body);
+        return res
+            .status(201)
+            .json({ message: "Created", insertId: result.insertId })
+            .end();
+    } catch (error) {
+        next(error);
+    }
+};
