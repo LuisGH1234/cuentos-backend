@@ -49,8 +49,10 @@ async function query({ sql, args }) {
     try {
         conn = createConnection();
         conn.connect();
+        // console.log(sql, args);
         const res = await conn.promise().query(sql, args);
         conn.end();
+        // console.log("res-query:", res);
         return res;
         // return await pool.promise().query(sql, args);
     } catch (error) {
@@ -65,7 +67,7 @@ async function query({ sql, args }) {
 function SQL(sql, ...args) {
     if (typeof sql === "string") return { sql, args: undefined };
     else if (Array.isArray(sql)) {
-        return { sql: sql.join("?"), args };
+        return { sql: sql.map(x => x.replace(/(\r\n|\n|\r)/gm, " ")).join("?"), args };
     } else throw new Error("SQL: Type error exception");
 }
 

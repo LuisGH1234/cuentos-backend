@@ -2,19 +2,17 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+const morgan = require("morgan");
 const app = express();
-const apiDoc = "https://documenter.getpostman.com/view/5216695/SW7aYTEs?version=latest";
 
 app.set("PORT", process.env.PORT || 3000);
 
+app.use(morgan("dev"));
 app.use(express.json());
 app.use(cors());
 
 app.get("/", (req, res) => res.send("still alive").end());
-app.get("/apidoc", (req, res) => {
-    res.writeHead(301, { Location: apiDoc });
-    res.end();
-});
+app.get("/apidoc", require("./lib/helpers/apidoc"));
 app.use("/api/users", require("./modules/user/user.router"));
 app.use("/api/stories", require("./modules/story/story.router"));
 app.use("/api/genders", require("./modules/gender/gender.router"));

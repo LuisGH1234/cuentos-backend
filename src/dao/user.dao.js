@@ -15,6 +15,12 @@ class UserDao {
         const [res, _, err] = await query(SQL`insert into user set ${user}`);
         return res;
     }
+
+    static async findById(id) {
+        const [result, _, err] = await query(SQL`select * from user where id = ${id}`);
+        if (result[0]) delete result[0].password;
+        return result[0];
+    }
 }
 
 class User {
