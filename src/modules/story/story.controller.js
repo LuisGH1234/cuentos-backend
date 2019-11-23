@@ -1,5 +1,5 @@
 const { StoryDao } = require("../../dao/story.dao");
-const { UserDao } = require("../../dao/user.dao");
+const getSignedUrl = require("../../lib/helpers/s3-signedurl");
 
 exports.getAll = async (req, res, next) => {
     try {
@@ -31,10 +31,20 @@ exports.getAllMine = async (req, res, next) => {
 exports.createStory = async (req, res, next) => {
     try {
         req.body.user = req.user;
+        const { file } = req.body;
         const result = await StoryDao.insert(req.body);
+        // result.insertId
+        const url = getSignedUrl(
+            {} /*{
+            filename: file.filename,
+            extension: file.extension,
+            id: result.insertId
+        }*/
+        );
+        // console.log("pUrl", presignedUrl);
         return res
             .status(201)
-            .json({ message: "Created", insertId: result.insertId })
+            .json({ message: "Created", insertId: result.insertId, payload: url })
             .end();
     } catch (error) {
         next(error);
