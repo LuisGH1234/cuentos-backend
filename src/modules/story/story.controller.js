@@ -12,6 +12,7 @@ exports.getAll = async (req, res, next) => {
 };
 
 exports.getAllMine = async (req, res, next) => {
+    console.log("mine");
     try {
         const { id: userID } = req.user;
         console.log("userID: " + userID);
