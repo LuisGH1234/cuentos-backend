@@ -138,6 +138,12 @@ class StoryDao {
         console.log("result update", result);
         return result;
     }
+
+    static async getByID(id) {
+        const [result] = await query(SQL`select * from story where id = ${id}`);
+        // console.log("result update", result[0]);
+        return result[0];
+    }
 }
 
 class Story {

@@ -50,3 +50,17 @@ exports.createStory = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.getByID = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const result = await StoryDao.getByID(id);
+
+        return res
+            .status(201)
+            .json({ message: "Ok", data: result })
+            .end();
+    } catch (error) {
+        next(error);
+    }
+};
