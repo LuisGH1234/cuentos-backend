@@ -19,7 +19,7 @@
     },
     "homepage": "https://github.com/LuisGH1234/cuentos-backend#readme",
     "dependencies": {
-        "aws-sdk": "^2.574.0",
+        "aws-sdk": "^2.814.0",
         "bcrypt": "^3.0.6",
         "cors": "^2.8.5",
         "dotenv": "^8.2.0",
